@@ -1,0 +1,16 @@
+ui.update
+
+# api listening on http://127.0.0.1:8081/ and ui to http://127.0.0.1
+set api.rest.address 0.0.0.0
+set api.rest.port 8081
+set http.server.address 0.0.0.0
+set http.server.port 8080
+# default installation path of the ui
+set http.server.path /usr/local/share/bettercap/ui
+
+set api.rest.username pakemon
+set api.rest.password pakemon
+
+# go!
+api.rest on
+http.server on
