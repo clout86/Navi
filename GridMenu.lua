@@ -7,9 +7,9 @@ local menuItems = {} -- Items for the current page
 
 local totalPages
 local selectedItem = 1
-local itemsPerPage = 9
+local itemsPerPage = 18
 local currentPage = 1
-local rows = 9
+local rows = 6
 local cols = 3
 local cellWidth = 100
 local cellHeight = 50
@@ -150,7 +150,7 @@ function GridMenu.drawGrid(startX, startY, rows, cols, cellWidth, cellHeight)
 
     local starX = startX or 400
     local startY = startY or 400
-    local rows = rows or 9
+    local rows = rows or 6
     local cols = cols or 3
     local cellWidth = cellWidth or 100
     local cellHeight = cellHeight or 50
@@ -173,17 +173,25 @@ function GridMenu.drawGrid(startX, startY, rows, cols, cellWidth, cellHeight)
         local x = gridStartX + (col - 1) * cellWidth
         local y = gridStartY + (row - 1) * cellHeight
 
-        -- Set the color for the selected or unselected item
-        love.graphics.setColor(i == selectedItem and {1, 0, 0} or {0, 1, 1, 0.6})
+        love.graphics.setColor(i == selectedItem and {1, 0, 0} or {0, 1, 1, 0.85})
         love.graphics.rectangle("fill", x, y, cellWidth, cellHeight)
 
-        -- Set the color for the text and print the item's name
-        love.graphics.setColor(i == selectedItem and {0, 0, 0} or {1, 1, 1})
-        love.graphics.print(item.name, x + 10, y + cellHeight / 2 - 7)
-    end
-    love.graphics.setColor(1, 1, 1)
+        -- Set the scissor to clip text within the button's area
+        love.graphics.setScissor(x, y, cellWidth, cellHeight)
 
+        -- Set the color for the text
+        love.graphics.setColor(i == selectedItem and {0, 0, 0} or {0, 0, 0})
+
+        -- Print the item's name
+        love.graphics.print(item.name, x + 10, y + cellHeight / 2 - 7)
+
+        -- Disable the scissor after drawing the text
+        love.graphics.setScissor()
+    end
+
+    love.graphics.setColor(1, 1, 1)
 end
+
 
 return GridMenu
 

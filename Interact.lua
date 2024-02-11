@@ -1,54 +1,48 @@
-    local interact = {}
+local interact = {}
 
+function interact.planetNavigation(key)
+    if key == ('up') then
+        navi_ui.planetSelectUp()
 
+    end
+    if key == ('down') then
+        navi_ui.planetSelectDown()
 
+    end
+    if key == ('a') then
+        navi_ui.toggleDisplayDetails()
+        currentFocusStateIndex = 5 -- switch to launcher after selecting planet
 
-    function interact.planetNavigation(key)
-            if key == ('up') then
-                navi_ui.planetSelectUp()
+    end
+    if key == ('b') then
+        currentFocusStateIndex = 1 
+    end
+end
 
-            end
-            if key == ('down') then
-                navi_ui.planetSelectDown()
+function interact.gridNavigation(key)
 
-            end
-            if key == ('a') then
-                navi_ui.toggleDisplayDetails()
+    if key == ('up') then
+        GridMenu.navigateGridUp()
 
-            end
-        end
+    end
+    if key == ('down') then
+        GridMenu.navigateGridDown()
 
+    end
+    if key == ('left') then
+        GridMenu.navigateGridLeft()
 
-    function interact.gridNavigation(key)
+    end
+    if key == ('right') then
+        GridMenu.navigateGridRight()
 
-        if key == ('up') then
-            GridMenu.navigateGridUp()
+    end
+    if key == ('a') then
+        OptionsMenu.showOptions()
+        OptionsMenu.loadModuleInfo()
+        currentFocusStateIndex = 3
 
-        end
-        if key == ('down') then
-            GridMenu.navigateGridDown()
+    end
+end
 
-        end
-        if key == ('left') then
-            GridMenu.navigateGridLeft()
-
-        end
-        if key == ('right') then
-            GridMenu.navigateGridRight()
-
-        end 
-             if key == ('a') then
-                OptionsMenu.loadModuleInfo()
-                rena.dialog()
-   
-                end
-        end
-
-
-
-
-
-
-
-
-    return interact
+return interact

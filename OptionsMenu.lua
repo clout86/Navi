@@ -10,7 +10,7 @@ local keyboard = require("lib.keyboard")
 local selectedOptionIndex = 1
 local scrollOffset = 0
 local maxOptionsOnScreen = 10
-local ui_option_data = {
+ui_option_data = {
     options = {},
     optionKeys = {}
     -- ... other related variables ...
@@ -20,13 +20,12 @@ local OPTION_STATE = {
 
     NAVIGATING_OPTIONS = "navigate_options",
     EDITING_OPTION = "enum_or_bool",
-    KEYBOARD_INPUT = "text_input",
+    KEYBOARD_INPUT = "text_input"
 }
 
 local CURRENT_STATE = OPTION_STATE.NAVIGATING_OPTIONS
 
 -----------------------------------------------------------------------------------------------------------------------
--- Define option handlers for different types within 'options'
 local optionHandler = {
     integer = function(key, option, action)
         if action == "edit" then
@@ -34,6 +33,8 @@ local optionHandler = {
             keyboard.inputText = tostring(option.value)
             keyboard.currentIndex = 1
             keyboard.inputPosition = #keyboard.inputText + 1
+        elseif action == "finish_edit" then
+            option.value = tonumber(keyboard.inputText) or 0
         end
     end,
     string = function(key, option, action)
@@ -43,6 +44,7 @@ local optionHandler = {
             keyboard.currentIndex = 1
             keyboard.inputPosition = #keyboard.inputText + 1
         end
+        -- No "finish_edit" needed for strings, as they remain strings
     end,
     port = function(key, option, action)
         if action == "edit" then
@@ -50,6 +52,9 @@ local optionHandler = {
             keyboard.inputText = tostring(option.value)
             keyboard.currentIndex = 1
             keyboard.inputPosition = #keyboard.inputText + 1
+        elseif action == "finish_edit" then
+            local portNum = tonumber(keyboard.inputText) or 0
+            option.value = (portNum >= 0 and portNum <= 65535) and portNum or 0 -- Validating port range
         end
     end,
     address = function(key, option, action)
@@ -59,21 +64,44 @@ local optionHandler = {
             keyboard.currentIndex = 1
             keyboard.inputPosition = #keyboard.inputText + 1
         end
+        -- Additional validation for IP address format can be added in "finish_edit" if needed
     end,
     bool = function(key, option, action)
         if action == "edit" then
-            option.value = not option.value
+            option.value = not option.value -- Toggle boolean value
         end
+        -- No "finish_edit" needed for booleans, as they are simply toggled
     end,
     enum = function(key, option, action)
         if action == "edit" then
             CURRENT_STATE = OPTION_STATE.EDITING_OPTION
             DropdownMenu.load(option.enums, 300, 300)
         end
+        -- Handle selection from DropdownMenu in "finish_edit" if needed
+    end,
+    rhosts = function(key, option, action)
+        if selectedPlanet and selectedPlanet.ipv4 then
+            print("Setting RHOSTS to selectedPlanet.ipv4:", selectedPlanet.ipv4)  -- Debug statement
+            option.value = selectedPlanet.ipv4
+        end
+        if action == "edit" then
+            CURRENT_STATE = OPTION_STATE.KEYBOARD_INPUT
+            keyboard.inputText = tostring(option.value)
+            keyboard.currentIndex = 1
+            keyboard.inputPosition = #keyboard.inputText + 1
+        elseif action == "finish_edit" then
+            print("Finishing edit for RHOSTS")  -- Debug statement
+            if selectedPlanet and selectedPlanet.ipv4 then
+                print("Setting RHOSTS to selectedPlanet.ipv4:", selectedPlanet.ipv4)  -- Debug statement
+                option.value = selectedPlanet.ipv4
+            else
+                print("Setting RHOSTS to keyboard input:", keyboard.inputText)  -- Debug statement
+                option.value = keyboard.inputText
+            end
+        end
     end
-    -- ... other handlers ...
-    -- rport
-    -- path
+    
+    -- Other types can be added here as needed
 }
 
 local topLevelHandlers = {
@@ -92,7 +120,6 @@ local topLevelHandlers = {
     end
     -- Add handlers for other known keys as necessary
 }
-
 
 topLevelHandlers.options = function(options)
     for key, option in pairs(options) do
@@ -157,8 +184,6 @@ function OptionsMenu.popState()
     end
 end
 
-
-
 function OptionsMenu.updateTalkiesDialog(title, items) -- ,image)
     -- Use the refactored tableToString function to handle the conversion
     local content = OptionsMenu.tableToString(items)
@@ -214,7 +239,6 @@ function OptionsMenu.walk_table(t, depth)
     return result
 end
 
-
 -- Adjusts the scroll offset based on navigation
 function OptionsMenu.adjustScrollOffset(direction)
     if direction > 0 and selectedOptionIndex > scrollOffset + maxOptionsOnScreen then
@@ -233,7 +257,6 @@ function OptionsMenu.getOptionKeys()
     return keys
 end
 
-
 function OptionsMenu.getOptionCount()
     local count = 0
     for _ in pairs(ui_option_data.options) do
@@ -250,7 +273,6 @@ function OptionsMenu.adjustScrollOffset(direction)
         scrollOffset = scrollOffset - 1
     end
 end
-
 
 function OptionsMenu.updateTalkieMsfOptionDesc()
     if CURRENT_STATE == OPTION_STATE.NAVIGATING_OPTIONS then
@@ -284,7 +306,6 @@ function OptionsMenu.toggleOrSelectOption()
     OptionsMenu.updateTalkieMsfOptionDesc()
 end
 
-
 -- Process each top-level item with the appropriate handler
 function OptionsMenu.processMsfModuleInfo(module_info)
     for key, value in pairs(module_info) do
@@ -298,8 +319,6 @@ function OptionsMenu.processMsfModuleInfo(module_info)
         end
     end
 end
-
-
 
 -- Helper Functions
 function OptionsMenu.getOptionKeys()
@@ -319,10 +338,9 @@ function OptionsMenu.loadModuleInfo()
     -- Authenticate and get the token for msfprcd
     local token = authenticate(url, username, password)
 
-
-local selectedItem = GridMenu.getSelectedItem()
-local module_type = "exploit"
-local module_name = OptionsMenu.trim(selectedItem.full_module_name)
+    local selectedItem = GridMenu.getSelectedItem()
+    local module_type = "exploit"
+    local module_name = OptionsMenu.trim(selectedItem.full_module_name)
 
     local unpacked_info = metasploit.get_module_info(url, token, module_type, module_name)
 
@@ -341,7 +359,6 @@ function OptionsMenu.getOptionCount()
     end
     return count
 end
-
 
 -- Navigates up in the options list
 function OptionsMenu.navigateOptionsUp()
@@ -373,8 +390,6 @@ end
 function OptionsMenu.exitEditingOrGoBack()
     if CURRENT_STATE == OPTION_STATE.EDITING_OPTION or CURRENT_STATE == OPTION_STATE.KEYBOARD_INPUT then
         CURRENT_STATE = OPTION_STATE.NAVIGATING_OPTIONS
-    else
-        OptionsMenu.popState()
     end
 end
 
@@ -392,42 +407,78 @@ end
 function OptionsMenu.getCurrentOptionData()
     local currentOptionKey = OptionsMenu.getOptionKeys()[selectedOptionIndex]
     return ui_option_data.options[currentOptionKey]
-    
+
 end
 
+function OptionsMenu.toggleOptionsVisibility()
+    isOptionsVisible = not isOptionsVisible
+end
 
+function OptionsMenu.showOptions()
+    isOptionsVisible = true
+end
 
-    function OptionsMenu.optionsNavigation(key)
+function OptionsMenu.hideOptions()
+    isOptionsVisible = false
+end
 
-        if key == ('up') then
-            OptionsMenu.navigateOptionsUp()
+function OptionsMenu.optionsNavigation(key)
+
+    if not isOptionsVisible then
+        return
+    end
+
+    if key == ('up') then
+        OptionsMenu.navigateOptionsUp()
         --    OptionsMenu.clearOptions()
-        
+
         OptionsMenu.updateTalkieMsfOptionDesc()
         --   OptionsMenu.updateTalkieMsfOptionDesc()
 
-        end
-        if key == ('down') then
-            OptionsMenu.navigateOptionsDown()
+    end
+    if key == ('down') then
+        OptionsMenu.navigateOptionsDown()
         --    OptionsMenu.clearOptions()
-        
+
         --    OptionsMenu.updateTalkieMsfOptionDesc()
         OptionsMenu.updateTalkieMsfOptionDesc()
-        end
-        if key == ('a') then
-            OptionsMenu.toggleOrSelectOption()
-
-        end
-        if key == ('b') then
-            OptionsMenu.exitEditingOrGoBack()
-            -- pop focusState
-        end
-
     end
+
+    if key == 'a' then
+        if CURRENT_STATE == OPTION_STATE.KEYBOARD_INPUT or CURRENT_STATE == OPTION_STATE.EDITING_OPTION then
+            -- Confirm the edit and process the finished value
+            local currentOptionKey = OptionsMenu.getOptionKeys()[selectedOptionIndex]
+            local currentOption = ui_option_data.options[currentOptionKey]
+            local handler = optionHandler[currentOption.type]
+            if handler then
+                handler(currentOptionKey, currentOption, "finish_edit")
+            end
+            CURRENT_STATE = OPTION_STATE.NAVIGATING_OPTIONS
+        else
+            -- Handle 'a' for other states if needed
+            OptionsMenu.toggleOrSelectOption()
+        end
+    end
+
+    if key == 'b' then
+        if CURRENT_STATE == OPTION_STATE.KEYBOARD_INPUT or CURRENT_STATE == OPTION_STATE.EDITING_OPTION then
+            -- Cancel the edit and revert any changes if needed
+            CURRENT_STATE = OPTION_STATE.NAVIGATING_OPTIONS
+        else
+            -- Handle 'b' for other states if needed
+            OptionsMenu.exitEditingOrGoBack()
+        end
+    end
+end
 
 
 -- Drawing Functions
 function OptionsMenu.drawOptions()
+
+    if not isOptionsVisible then
+        return
+    end
+
     local baseY = 175
     local optionKeys = OptionsMenu.getOptionKeys()
     for i, optionKey in ipairs(optionKeys) do
@@ -435,13 +486,13 @@ function OptionsMenu.drawOptions()
         if i > scrollOffset and i <= scrollOffset + maxOptionsOnScreen then
             local y = baseY + (i - scrollOffset - 1) * 20
             -- Drawing logic for options
-            love.graphics.setColor( 0, 0, 0, 0.8 )
+            love.graphics.setColor(0, 0, 0, 0.8)
             love.graphics.rectangle("fill", 100, y, 200, 20)
             local displayText = optionKey
-            local optionValue = tostring(optionData.value) or "No description available" 
+            local optionValue = tostring(optionData.value) or "No description available"
             love.graphics.setColor(0, 255, 0)
             love.graphics.print(displayText, 110, y)
-            love.graphics.print(optionValue, 305, y) 
+            love.graphics.print(optionValue, 305, y)
 
             -- Highlight selected option
             if i == selectedOptionIndex then
@@ -457,9 +508,8 @@ function OptionsMenu.drawOptions()
                     DropdownMenu.draw() -- Draw the DropdownMenu for enum options
                 end
             end
-            
 
-             love.graphics.setColor(1, 1, 1)
+            love.graphics.setColor(1, 1, 1)
         end
     end
 end

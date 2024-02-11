@@ -42,9 +42,6 @@ If you want to interact with the options menu, you have to make sure the FocusSt
 Launcher cursor/pointer bug, it always moves no matter the focused state, it only takes input when focus is indexed at state "5"
 ```
 
-#### Now with zoom!
-key press "d" and "c" for zoomingn in and out in all focused states. 
-
 # some general warnings and infos 
 
 if you're not running it on the test net... well somethings are "hard coded" via variables to the docker test-net right now.

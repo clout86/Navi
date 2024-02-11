@@ -204,7 +204,7 @@ function love.update(dt)
 
     launcher.update(dt)
     --  DEBUG STUFF
-    require("lib.lovebird").update()
+   -- require("lib.lovebird").update()
     -- require("lurker").update()
     --  END DEBUG STUFF
     Talkies.update(dt)
@@ -227,6 +227,9 @@ function love.update(dt)
         end
         if love.keyboard.isDown('right') then
             navi_ui.ship.x = navi_ui.ship.x + navi_ui.ship.speed * dt
+        end
+        if love.keyboard.isDown('a') then
+            currentFocusStateIndex = 2
         end
 
         
@@ -281,11 +284,10 @@ function love.keypressed(key)
         elseif key == 'down' then
             Talkies.nextOption()
         elseif key == 'a' then
-            Talkies.onAction()
-            currentFocusStateIndex = 3
-           -- pushState(State.NAVIGATING_OPTIONS)
+            Talkies.onAction()        
         elseif key == 'b' then
             Talkies.clearMessages()
+            currentFocusStateIndex = 5
     end
 end
 end
@@ -299,6 +301,6 @@ function love.draw()
     navi_ui.draw()
     Talkies.draw()
     OptionsMenu.drawOptions()
-    GridMenu.drawGrid(400, 400)
+    GridMenu.drawGrid(400, 50)
 
 end
