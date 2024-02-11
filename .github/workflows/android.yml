@@ -1,0 +1,85 @@
+            - name: Love actions for Android
+  # You may pin to the exact commit or the version.
+  # uses: love-actions/love-actions-android@c235d2be5c68f7c3d7e8144268a2a03f78d57901
+  uses: love-actions/love-actions-android@v1.1.3
+  with:
+    # App display name
+Would be used in app/src/main/AndroidManifest.xml
+
+    app-name: # optional, default is LÖVE for Android
+    # App bundle id
+Would be used in app/build.gradle
+
+    bundle-id: # optional, default is org.love2d.android
+    # Path to the resources folder
+Would copy all contents to app/src/main/res
+Top folder not included
+
+    resource-path: 
+    # Icon specifier
+Would be used in app/src/main/AndroidManifest.xml
+
+    icon-specifier: # optional, default is @drawable/love
+    # LÖVE git ref
+Could be commit hash, tags or branch name
+
+    love-ref: # optional, default is 11.4
+    # Git patch file path for the LÖVE repo
+The patch must start from `love-ref`
+You can use `git diff` to get the patch file
+
+    love-patch: # optional
+    # Love package
+Would be added to app/src/embed/assets/
+
+    love-package: # optional, default is ./game.love
+    # Path to the libs folder
+Would copy all contents to app/libs
+Top folder not included
+
+    libs-path: # optional
+    # List of folder & file paths to be added to app/src/embed/assets/
+Don't need global quotes, separated by spaces
+Looks like: ./assets/ ./logics/ ./main.lua ./config.lua
+
+    extra-assets: # optional
+    # Custom URL scheme, looks like "demo_scheme://demo_host"
+Would be used in app/src/main/AndroidManifest.xml
+
+    custom-scheme: # optional
+    # Base name of the package
+Would be used to rename products
+
+    product-name: # optional, default is love-app
+    # App version string
+Use 3 numbers seperated by dots
+Looks like 3.2.1
+
+    version-string: # optional, default is 0b0ff5551fae8b2079749481cd2b54adbbb25bd9
+    # App version code
+One number, usually the same as version string without dots
+Looks like 321
+
+    version-code: # optional, default is 30
+    # Packages output folder
+All packages would be placed here
+
+    output-folder: # optional, default is ./build
+    # Keystore alias
+Would be used to sign the app
+
+    keystore-alias: # optional
+    # Keystore base64 content
+Would be used to sign the app
+
+    keystore-base64: # optional
+    # Keystore key password
+Would be used to sign the app
+
+    keystore-key-password: # optional
+    # Keystore store password
+Would be used to sign the app
+Usually the same as keystore-key-password
+
+    keystore-store-password: # optional
+          
