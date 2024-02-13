@@ -1,5 +1,5 @@
 name: Build bare love package
 uses: love-actions/love-actions-core@v1
-  with:
+with:
     build-list: ./*
     package-path: ./bare/navi.love
